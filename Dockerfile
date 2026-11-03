@@ -1,0 +1,20 @@
+# Stage 1: Build WAR
+FROM maven:3.9-eclipse-temurin-25 AS build
+
+WORKDIR /app
+
+COPY pom.xml .
+COPY src ./src
+
+RUN mvn clean package -DskipTests
+
+# Stage 2: Run application
+FROM eclipse-temurin:25-jre
+
+WORKDIR /app
+
+COPY --from=build /app/target/*.war app.war
+
+EXPOSE 8002
+
+ENTRYPOINT ["java", "-jar", "app.war"]
